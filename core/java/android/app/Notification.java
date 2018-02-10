@@ -4439,6 +4439,11 @@ public class Notification implements Parcelable
         private CharSequence processTextSpans(CharSequence text) {
             if (hasForegroundColor()) {
                 return NotificationColorUtil.clearColorSpans(text);
+            } else if (mContext.getResources()
+                .getBoolean(R.bool.config_useDarkBgNotificationIconTextTinting)) {
+                // Some notifications have color spans, assuming a dark background,
+                // so let's remove them
+                return NotificationColorUtil.clearColorSpans(text);
             }
             return text;
         }
@@ -5465,8 +5470,10 @@ public class Notification implements Parcelable
                 ensureColors();
                 color = NotificationColorUtil.resolveDefaultColor(mContext, background);
             } else {
+                boolean isDark = mInNightMode || mContext.getResources()
+                        .getBoolean(R.bool.config_useDarkBgNotificationIconTextTinting);
                 color = NotificationColorUtil.resolveContrastColor(mContext, mN.color,
-                        background, mInNightMode);
+                        background, isDark);
             }
             if (Color.alpha(color) < 255) {
                 // alpha doesn't go well for color filters, so let's blend it manually
